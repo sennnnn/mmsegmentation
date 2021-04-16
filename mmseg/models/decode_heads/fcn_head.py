@@ -43,6 +43,7 @@ class FCNHead(BaseDecodeHead):
                 kernel_size=kernel_size,
                 padding=conv_padding,
                 dilation=dilation,
+                bias=True,
                 conv_cfg=self.conv_cfg,
                 norm_cfg=self.norm_cfg,
                 act_cfg=self.act_cfg))

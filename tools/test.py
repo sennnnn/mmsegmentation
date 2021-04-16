@@ -117,9 +117,9 @@ def main():
     # build the model and load checkpoint
     cfg.model.train_cfg = None
     model = build_segmentor(cfg.model, test_cfg=cfg.get('test_cfg'))
-    checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
-    model.CLASSES = checkpoint['meta']['CLASSES']
-    model.PALETTE = checkpoint['meta']['PALETTE']
+    _ = load_checkpoint(model, args.checkpoint, map_location='cpu')
+    model.CLASSES = dataset.CLASSES
+    model.PALETTE = dataset.PALETTE
 
     efficient_test = False
     if args.eval_options is not None:

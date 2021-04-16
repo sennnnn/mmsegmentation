@@ -108,6 +108,8 @@ data
 .idea
 
 # custom
+*.txt
+*.jpg
 *.npy
 *.pkl
 *.pkl.json
