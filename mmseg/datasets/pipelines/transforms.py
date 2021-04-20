@@ -389,10 +389,16 @@ class Normalize(object):
                 result dict.
         """
 
-        results['img'] = mmcv.imnormalize(results['img'], self.mean, self.std,
-                                          self.to_rgb)
-        results['img_norm_cfg'] = dict(
-            mean=self.mean, std=self.std, to_rgb=self.to_rgb)
+        # results['img'] = mmcv.imnormalize(results['img'], self.mean,
+        #                                   self.std, self.to_rgb)
+        # results['img_norm_cfg'] = dict(
+        #     mean=self.mean, std=self.std, to_rgb=self.to_rgb)
+        image = results['img']
+        image = image.astype(np.float32)[:, :, ::-1]
+        image = image / 255.0
+        image -= [0.485, 0.456, 0.406]
+        image /= [0.229, 0.224, 0.225]
+        results['img'] = image
         return results
 
     def __repr__(self):
