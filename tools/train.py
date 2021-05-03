@@ -132,6 +132,13 @@ def main():
         train_cfg=cfg.get('train_cfg'),
         test_cfg=cfg.get('test_cfg'))
 
+    model.load_state_dict(torch.load('setr_process.pth'))
+    temp = torch.ones((1, 3, 512, 512))
+    out = model(temp)
+    import nump as np
+    np.save('mmseg.npy', out.numpy())
+    # torch.save(model.eval().state_dict(), 'mmseg.pth')
+    exit(0)
     logger.info(model)
 
     datasets = [build_dataset(cfg.data.train)]
