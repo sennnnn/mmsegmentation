@@ -44,11 +44,7 @@ def naive_head_convert(raw_ckpt, new_ckpt):
         if 'conv_seg' in k:
             continue
         new_k = k
-        if k.startswith('decode_head.conv_1'):
-            new_k = new_k.replace('conv_1', 'conv_seg')
-        elif k.startswith('decode_head.syncbn'):
-            new_k = new_k.replace('sync', 'unified_')
-        elif k.startswith('auxiliary_head'):
+        if k.startswith('decode_head') or k.startswith('auxiliary_head'):
             if 'conv_1' in k:
                 new_k = new_k.replace('conv_1', 'conv_seg')
             elif 'syncbn' in k:
@@ -78,18 +74,18 @@ def mla_head_convert(raw_ckpt, new_ckpt):
         if 'conv_seg' in k:
             continue
         if k.startswith('backbone.mla'):
-            new_ckpt[k.replace('backbone', 'decode_head')] = v
-            for i in range(4):
-                new_ckpt[k.replace('backbone', f'auxiliary_head.{i}')] = v
+            temp = k.replace('backbone', 'neck')
+            if '.0.' in temp:
+                temp = temp.replace('.0.', '.conv.')
+            elif '.1.' in temp:
+                temp = temp.replace('.1.', '.bn.')
+            new_ckpt[temp] = v
         elif k.startswith('backbone.norm_'):
-            new_ckpt[k.replace('backbone.norm_', 'decode_head.norm.')] = v
-            for i in range(4):
-                new_ckpt[k.replace('backbone.norm_',
-                                   f'auxiliary_head.{i}.norm.')] = v
+            new_ckpt[k.replace('backbone.norm_', 'neck.norm.')] = v
         elif '.cls.' in k:
             new_ckpt[k.replace('.cls.', '.conv_seg.')] = v
         elif '.aux.' in k:
-            new_ckpt[k.replace('.aux.', '.conv_seg.')] = v
+            new_ckpt[k.replace('.aux.', '.conv_seg.conv.')] = v
         else:
             new_ckpt[k] = v
 
