@@ -1,6 +1,6 @@
 _base_ = [
     '../_base_/models/setr_mla.py', '../_base_/datasets/cityscapes_768x768.py',
-    '../_base_/default_runtime.py', '../_base_/schedules/schedule_80k.py'
+    '../_base_/default_runtime.py', '../_base_/schedules/schedule_40k.py'
 ]
 model = dict(
     backbone=dict(drop_rate=0., ),
@@ -12,5 +12,5 @@ optimizer = dict(
     paramwise_cfg=dict(custom_keys={'head': dict(lr_mult=10.)}),
 )
 
-find_unused_parameters = True
+find_unused_parameters = False
 data = dict(samples_per_gpu=1)
