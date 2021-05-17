@@ -85,7 +85,7 @@ def mla_head_convert(raw_ckpt, new_ckpt):
         elif '.cls.' in k:
             new_ckpt[k.replace('.cls.', '.conv_seg.')] = v
         elif '.aux.' in k:
-            new_ckpt[k.replace('.aux.', '.conv_seg.conv.')] = v
+            new_ckpt[k.replace('.aux.', '.conv_seg.')] = v
         else:
             new_ckpt[k] = v
 
