@@ -7,9 +7,13 @@ from .utils import to_cuda
 
 def test_setr_up_head(capsys):
 
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(AssertionError):
         # num_convs must be [2/4]
         SETRUPHead(num_classes=19, num_convs=-1)
+
+    with pytest.raises(AssertionError):
+        # kernel_size must be [1/3]
+        SETRUPHead(num_classes=19, kernel_size=2)
 
     with pytest.raises(TypeError):
         # unutilizing ConvModule, so there is not auto norm layer.
@@ -21,16 +25,6 @@ def test_setr_up_head(capsys):
         SETRUPHead(
             in_channels=(32, 32), channels=16, embed_dim=32, num_classes=19)
         SETRUPHead(in_channels=24, channels=16, embed_dim=32, num_classes=19)
-
-        with pytest.raises(NotImplementedError):
-            # img_size must be int or tuple.
-            SETRUPHead(
-                in_channels=32,
-                channels=16,
-                embed_dim=19,
-                num_classes=19,
-                norm_cfg=dict(type='SyncBN'),
-                img_size=[224, 224])
 
     with pytest.raises(NotImplementedError):
         x = [torch.randn(1, 32, 4, 4)]
@@ -60,69 +54,97 @@ def test_setr_up_head(capsys):
             norm_cfg=dict(type='SyncBN'))
         head(x)
 
+    # test init_weights of head
+    head = SETRUPHead(
+        in_channels=32,
+        channels=16,
+        embed_dim=32,
+        norm_cfg=dict(type='SyncBN'),
+        num_classes=19)
+    head.init_weights()
+
     # test inference of Naive head
+    # the auxiliary head of Naive head is same as Naive head
     img_size = (32, 32)
     patch_size = 16
     head = SETRUPHead(
-        img_size=img_size,
         in_channels=32,
         channels=16,
         num_classes=19,
         embed_dim=32,
         num_convs=2,
         num_up_layer=1,
-        conv3x3_conv1x1=False,
+        kernel_size=1,
         norm_cfg=dict(type='BN'))
 
     h, w = img_size[0] // patch_size, img_size[1] // patch_size
 
-    # Input NCHW format feature information
+    # Input square NCHW format feature information
     x = [torch.randn(1, 32, h, w)]
     if torch.cuda.is_available():
         head, x = to_cuda(head, x)
     out = head(x)
-    assert out.shape == (1, head.num_classes, *img_size)
+    assert out.shape == (1, head.num_classes, h, w)
+
+    # Input non-square NCHW format feature information
+    x = [torch.randn(1, 32, h, w * 2)]
+    if torch.cuda.is_available():
+        head, x = to_cuda(head, x)
+    out = head(x)
+    assert out.shape == (1, head.num_classes, h, w * 2)
 
     # test inference of PUP head
     img_size = (32, 32)
     patch_size = 16
     head = SETRUPHead(
-        img_size=img_size,
         in_channels=32,
         channels=16,
         num_classes=19,
         embed_dim=32,
         num_convs=4,
         num_up_layer=4,
+        kernel_size=3,
         norm_cfg=dict(type='BN'))
 
     h, w = img_size[0] // patch_size, img_size[1] // patch_size
-    # Input NCHW format feature information
-    # NCHW is the main input format.
+    # Input square NCHW format feature information
     x = [torch.randn(1, 32, h, w)]
     if torch.cuda.is_available():
         head, x = to_cuda(head, x)
     out = head(x)
-    assert out.shape == (1, head.num_classes, *img_size)
+    assert out.shape == (1, head.num_classes, h * 8, w * 8)
+
+    # Input non-square NCHW format feature information
+    x = [torch.randn(1, 32, h, w * 2)]
+    if torch.cuda.is_available():
+        head, x = to_cuda(head, x)
+    out = head(x)
+    assert out.shape == (1, head.num_classes, h * 8, w * 16)
 
     # test inference of PUP auxiliary head
-    img_size = (32, 32)
+    img_size = 32
     patch_size = 16
     head = SETRUPHead(
-        img_size=img_size,
         in_channels=32,
         channels=16,
         num_classes=19,
         embed_dim=32,
         num_convs=2,
         num_up_layer=2,
-        conv3x3_conv1x1=True,
+        kernel_size=3,
         norm_cfg=dict(type='BN'))
 
-    h, w = img_size[0] // patch_size, img_size[1] // patch_size
-    # Input NCHW format feature information
+    h, w = img_size // patch_size, img_size // patch_size
+    # Input square NCHW format feature information
     x = [torch.randn(1, 32, h, w)]
     if torch.cuda.is_available():
         head, x = to_cuda(head, x)
     out = head(x)
-    assert out.shape == (1, head.num_classes, *img_size)
+    assert out.shape == (1, head.num_classes, h * 4, w * 4)
+
+    # Input non-square NCHW format feature information
+    x = [torch.randn(1, 32, h, w * 2)]
+    if torch.cuda.is_available():
+        head, x = to_cuda(head, x)
+    out = head(x)
+    assert out.shape == (1, head.num_classes, h * 4, w * 8)
