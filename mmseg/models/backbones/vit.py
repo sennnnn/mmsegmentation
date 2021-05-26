@@ -205,10 +205,8 @@ class PatchEmbed(nn.Module):
 @BACKBONES.register_module()
 class VisionTransformer(nn.Module):
     """Vision transformer backbone.
-
     A PyTorch impl of : `An Image is Worth 16x16 Words: Transformers for
         Image Recognition at Scale` - https://arxiv.org/abs/2010.11929
-
     Args:
         img_size (tuple): input image size. Default: (224, 224).
         patch_size (int, tuple): patch size. Default: 16.
@@ -234,7 +232,7 @@ class VisionTransformer(nn.Module):
             and its variants only. Default: False.
         final_norm (bool):  Whether to add a additional layer to normalize
             final feature map. Default: False.
-        out_reshape (str): Select the output format of feature information.
+        out_shape (str): Select the output format of feature information.
             Default: NCHW.
         interpolate_mode (str): Select the interpolate mode for position
             embeding vector resize. Default: bicubic.
