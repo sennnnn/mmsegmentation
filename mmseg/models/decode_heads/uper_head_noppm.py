@@ -21,15 +21,15 @@ class UPerHeadNoPPM(BaseDecodeHead):
             input_transform='multiple_select', **kwargs)
         # PSP Module No PPM
         self.psp_modules = ConvModule(
-                in_channels,
-                self.channels,
-                1,
-                conv_cfg=self.conv_cfg,
-                norm_cfg=self.norm_cfg,
-                act_cfg=self.act_cfg,
-                inplace=False)
+            self.in_channels[-1],
+            self.channels,
+            1,
+            conv_cfg=self.conv_cfg,
+            norm_cfg=self.norm_cfg,
+            act_cfg=self.act_cfg,
+            inplace=False)
         self.bottleneck = ConvModule(
-            2 * self.channels,
+            self.in_channels[-1] + self.channels,
             self.channels,
             3,
             padding=1,
