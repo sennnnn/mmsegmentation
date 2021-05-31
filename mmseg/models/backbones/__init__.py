@@ -9,9 +9,10 @@ from .resnext import ResNeXt
 from .unet import UNet
 from .vit import VisionTransformer
 from .swin_transformer import SwinTransformer
+from .swin_transformer_unfold import SwinTransformerUnfold
 
 __all__ = [
     'ResNet', 'ResNetV1c', 'ResNetV1d', 'ResNeXt', 'HRNet', 'FastSCNN',
     'ResNeSt', 'MobileNetV2', 'UNet', 'CGNet', 'MobileNetV3',
-    'VisionTransformer', 'SwinTransformer'
+    'VisionTransformer', 'SwinTransformer', 'SwinTransformerUnfold'
 ]
