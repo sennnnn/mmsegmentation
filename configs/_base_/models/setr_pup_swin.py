@@ -22,8 +22,8 @@ model = dict(
         use_checkpoint=False),
     decode_head=dict(
         type='SETRUPHead',
-        in_channels=1024,
-        channels=256,
+        in_channels=768,
+        channels=192,
         in_index=3,
         num_classes=19,
         dropout_ratio=0,
@@ -37,8 +37,8 @@ model = dict(
     auxiliary_head=[
         dict(
             type='SETRUPHead',
-            in_channels=1024,
-            channels=256,
+            in_channels=96,
+            channels=24,
             in_index=0,
             num_classes=19,
             dropout_ratio=0,
@@ -51,8 +51,8 @@ model = dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
         dict(
             type='SETRUPHead',
-            in_channels=1024,
-            channels=256,
+            in_channels=192,
+            channels=48,
             in_index=1,
             num_classes=19,
             dropout_ratio=0,
@@ -65,8 +65,8 @@ model = dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
         dict(
             type='SETRUPHead',
-            in_channels=1024,
-            channels=256,
+            in_channels=384,
+            channels=96,
             in_index=2,
             num_classes=19,
             dropout_ratio=0,
@@ -79,8 +79,8 @@ model = dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
         dict(
             type='SETRUPHead',
-            in_channels=1024,
-            channels=256,
+            in_channels=768,
+            channels=192,
             in_index=3,
             num_classes=19,
             dropout_ratio=0,

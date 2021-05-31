@@ -27,7 +27,7 @@ class SpatialGatherModule(nn.Module):
         probs = probs.view(batch_size, num_classes, -1)
         feats = feats.view(batch_size, channels, -1)
         # [batch_size, height*width, num_classes]
-        feats = feats.permute(0, 2, 1)
+        feats = feats.permute(0, 2, 1).contiguous()
         # [batch_size, channels, height*width]
         probs = F.softmax(self.scale * probs, dim=2)
         # [batch_size, channels, num_classes]
