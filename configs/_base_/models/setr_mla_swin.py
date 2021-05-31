@@ -3,7 +3,7 @@ backbone_norm_cfg = dict(type='LN', eps=1e-6, requires_grad=True)
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
     type='EncoderDecoder',
-    pretrained=None, 
+    pretrained=None,
     backbone=dict(
         type='SwinTransformer',
         embed_dim=96,
@@ -21,19 +21,19 @@ model = dict(
         out_indices=(0, 1, 2, 3),
         use_checkpoint=False),
     neck=dict(
-        type='MLANeck',
+        type='MLANeckMs',
         in_channels=[96, 192, 384, 768],
         out_channels=192,
         norm_cfg=norm_cfg,
         act_cfg=dict(type='ReLU'),
     ),
     decode_head=dict(
-        type='SETRMLAHeadDiff',
+        type='SETRMLAHead',
         in_channels=(192, 192, 192, 192),
         channels=384,
         in_index=(0, 1, 2, 3),
         dropout_ratio=0,
-        mla_channels=128,
+        mla_channels=96,
         num_classes=19,
         norm_cfg=norm_cfg,
         align_corners=False,

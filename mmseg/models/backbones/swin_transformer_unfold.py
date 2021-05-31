@@ -320,33 +320,38 @@ class SwinTransformerBlock(nn.Module):
         return x
 
 
-class PatchMerging(BaseModule):
+class PatchMerging(nn.Module):
+    """Patch Merging Layer.
 
-    def __init__(self,
-                 input_resolution,
-                 embed_dims,
-                 norm_cfg=dict(type='LN'),
-                 init_cfg=None):
-        super().__init__(init_cfg)
-        self.input_resolution = input_resolution
-        self.embed_dims = embed_dims
-        self.reduction = nn.Linear(4 * embed_dims, 2 * embed_dims, bias=False)
+    Args:
+        dim (int): Number of input channels.
+        norm_layer (nn.Module, optional): Normalization layer.
+            Default: nn.LayerNorm
+    """
+
+    def __init__(self, dim, norm_layer=nn.LayerNorm):
+        super().__init__()
+        self.dim = dim
+        self.reduction = nn.Linear(4 * dim, 2 * dim, bias=False)
         self.sampler = nn.Unfold(kernel_size=(2, 2), stride=2)
-        if norm_cfg is not None:
-            self.norm = build_norm_layer(norm_cfg, 4 * embed_dims)[1]
-        else:
-            self.norm = None
+        self.norm = norm_layer(4 * dim)
 
-    def forward(self, x):
+    def forward(self, x, H, W):
+        """Forward function.
+
+        Args:
+            x: Input feature, tensor size (B, H*W, C).
+            H, W: Spatial resolution of the input feature.
         """
-        x: B, H*W, C
-        """
-        H, W = self.input_resolution
         B, L, C = x.shape
         assert L == H * W, 'input feature has wrong size'
-        assert H % 2 == 0 and W % 2 == 0, f'x size ({H}*{W}) are not even.'
 
         x = x.view(B, H, W, C).permute([0, 3, 1, 2])  # B, C, H, W
+
+        # padding
+        pad_input = (H % 2 == 1) or (W % 2 == 1)
+        if pad_input:
+            x = F.pad(x, (0, 0, 0, W % 2, 0, H % 2))
 
         # Use nn.Unfold to merge patch. About 25% faster than original method,
         # but need to modify pretrained model for compatibility
@@ -726,5 +731,5 @@ class SwinTransformerUnfold(nn.Module):
 
     def train(self, mode=True):
         """Convert the model into training mode while keep layers freezed."""
-        super(SwinTransformer, self).train(mode)
+        super(SwinTransformerUnfold, self).train(mode)
         self._freeze_stages()
