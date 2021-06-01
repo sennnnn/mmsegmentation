@@ -1,7 +1,7 @@
 # model settings
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
-    type='EncoderDecoder',
+    type='CascadeEncoderDecoder',
     pretrained=None,
     backbone=dict(
         type='SwinTransformer',

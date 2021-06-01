@@ -152,12 +152,13 @@ class WindowAttention(nn.Module):
         """
         B_, N, C = x.shape
         qkv = self.qkv(x).reshape(B_, N, 3, self.num_heads,
-                                  C // self.num_heads).permute(2, 0, 3, 1, 4)
+                                  C // self.num_heads).permute(2, 0, 3, 1,
+                                                               4).contiguous()
         q, k, v = qkv[0], qkv[1], qkv[
             2]  # make torchscript happy (cannot use tensor as tuple)
 
         q = q * self.scale
-        attn = (q @ k.transpose(-2, -1))
+        attn = (q @ k.transpose(-2, -1).contiguous())
 
         relative_position_bias = self.relative_position_bias_table[
             self.relative_position_index.view(-1)].view(
@@ -532,7 +533,7 @@ class PatchEmbed(nn.Module):
 
 
 @BACKBONES.register_module()
-class SwinTransformer(nn.Module):
+class SwinTransformerNodown(nn.Module):
     """ Swin Transformer backbone.
         A PyTorch impl of : `Swin Transformer: Hierarchical Vision Transformer
         using Shifted Windows`  - https://arxiv.org/pdf/2103.14030
@@ -640,8 +641,7 @@ class SwinTransformer(nn.Module):
                 attn_drop=attn_drop_rate,
                 drop_path=dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
                 norm_layer=norm_layer,
-                downsample=PatchMerging if
-                (i_layer < self.num_layers - 1) else None,
+                downsample= None,
                 use_checkpoint=use_checkpoint)
             self.layers.append(layer)
 
