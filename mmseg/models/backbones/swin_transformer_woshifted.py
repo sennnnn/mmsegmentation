@@ -418,7 +418,7 @@ class BasicLayer(nn.Module):
                 dim=dim,
                 num_heads=num_heads,
                 window_size=window_size,
-                shift_size=0 if (i % 2 == 0) else window_size // 2,
+                shift_size=0,
                 mlp_ratio=mlp_ratio,
                 qkv_bias=qkv_bias,
                 qk_scale=qk_scale,
@@ -533,7 +533,7 @@ class PatchEmbed(nn.Module):
 
 
 @BACKBONES.register_module()
-class EQSwinTransformer(nn.Module):
+class SwinTransformerWoshifted(nn.Module):
     """ Swin Transformer backbone.
         A PyTorch impl of : `Swin Transformer: Hierarchical Vision Transformer
         using Shifted Windows`  - https://arxiv.org/pdf/2103.14030
@@ -641,7 +641,8 @@ class EQSwinTransformer(nn.Module):
                 attn_drop=attn_drop_rate,
                 drop_path=dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
                 norm_layer=norm_layer,
-                downsample=None,
+                downsample=PatchMerging if
+                (i_layer < self.num_layers - 1) else None,
                 use_checkpoint=use_checkpoint)
             self.layers.append(layer)
 
@@ -732,5 +733,5 @@ class EQSwinTransformer(nn.Module):
 
     def train(self, mode=True):
         """Convert the model into training mode while keep layers freezed."""
-        super(EQSwinTransformer, self).train(mode)
+        super(SwinTransformerWoshifted, self).train(mode)
         self._freeze_stages()
