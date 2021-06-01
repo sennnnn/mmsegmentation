@@ -1,4 +1,5 @@
 from .cgnet import CGNet
+from .dilated_swin_transformer import DilatedSwinTransformer
 from .eqswin_transformer import EQSwinTransformer
 from .fast_scnn import FastSCNN
 from .hrnet import HRNet
@@ -17,5 +18,6 @@ __all__ = [
     'ResNet', 'ResNetV1c', 'ResNetV1d', 'ResNeXt', 'HRNet', 'FastSCNN',
     'ResNeSt', 'MobileNetV2', 'UNet', 'CGNet', 'MobileNetV3',
     'VisionTransformer', 'EQSwinTransformer', 'SwinTransformer',
-    'SwinTransformerUnfold', 'SwinTransformerWoshifted'
+    'SwinTransformerUnfold', 'SwinTransformerWoshifted',
+    'DilatedSwinTransformer'
 ]

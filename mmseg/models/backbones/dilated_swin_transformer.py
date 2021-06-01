@@ -329,11 +329,32 @@ class PatchMerging(nn.Module):
             Default: nn.LayerNorm
     """
 
-    def __init__(self, dim, norm_layer=nn.LayerNorm):
+    def __init__(self,
+                 dim,
+                 kernel_size=(2, 2),
+                 stride=2,
+                 dilation=1,
+                 norm_layer=nn.LayerNorm):
         super().__init__()
         self.dim = dim
+        self.kernel_size = kernel_size
+        self.stride = stride
         self.reduction = nn.Linear(4 * dim, 2 * dim, bias=False)
-        self.sampler = nn.Unfold(kernel_size=(2, 2), stride=2)
+
+        self.pad = None
+        padding = ((kernel_size - 1) * dilation + 1 - stride) / 2
+
+        if padding != int(padding):
+            self.pad = nn.ZeroPad2d((0, int(padding * 2), 0, int(padding * 2)))
+            padding = 0
+        else:
+            padding = int(padding)
+
+        self.sampler = nn.Unfold(
+            kernel_size=kernel_size,
+            stride=stride,
+            dilation=dilation,
+            padding=padding)
         self.norm = norm_layer(4 * dim)
 
     def forward(self, x, H, W):
@@ -347,14 +368,13 @@ class PatchMerging(nn.Module):
         assert L == H * W, 'input feature has wrong size'
 
         x = x.view(B, H, W, C).permute([0, 3, 1, 2])  # B, C, H, W
-
         # padding
-        x = F.pad(x, (0, 1, 0, 1))
-
+        if self.pad is not None:
+            x = self.pad(x)
         # Use nn.Unfold to merge patch. About 25% faster than original method,
         # but need to modify pretrained model for compatibility
-        x = self.sampler(x)  # B, 4*C, H/2*W/2
-        x = x.transpose(1, 2)  # B, H/2*W/2, 4*C
+        x = self.sampler(x)  # B, k*k*C, H/2*W/2
+        x = x.transpose(1, 2)  # B, H/2*W/2, k*k*C
 
         x = self.norm(x) if self.norm else x
         x = self.reduction(x)
@@ -393,6 +413,9 @@ class BasicLayer(nn.Module):
                  depth,
                  num_heads,
                  window_size=7,
+                 kernel_size=(2, 2),
+                 stride=2,
+                 dilation=1,
                  mlp_ratio=4.,
                  qkv_bias=True,
                  qk_scale=None,
@@ -404,6 +427,8 @@ class BasicLayer(nn.Module):
                  use_checkpoint=False):
         super().__init__()
         self.window_size = window_size
+        self.stride = stride
+        self.dilation = dilation
         self.shift_size = window_size // 2
         self.depth = depth
         self.use_checkpoint = use_checkpoint
@@ -427,7 +452,12 @@ class BasicLayer(nn.Module):
 
         # patch merging layer
         if downsample is not None:
-            self.downsample = downsample(dim=dim, norm_layer=norm_layer)
+            self.downsample = downsample(
+                dim=dim,
+                kernel_size=kernel_size,
+                stride=stride,
+                dilation=dilation,
+                norm_layer=norm_layer)
         else:
             self.downsample = None
 
@@ -472,7 +502,10 @@ class BasicLayer(nn.Module):
                 x = blk(x, attn_mask)
         if self.downsample is not None:
             x_down = self.downsample(x, H, W)
-            Wh, Ww = (H + 1) // 2, (W + 1) // 2
+            if self.stride > 1:
+                Wh, Ww = (H + 1) // self.stride, (W + 1) // self.stride
+            else:
+                Wh, Ww = H, W
             return x, H, W, x_down, Wh, Ww
         else:
             return x, H, W, x, H, W
@@ -571,6 +604,9 @@ class DilatedSwinTransformer(nn.Module):
                  embed_dim=96,
                  depths=[2, 2, 6, 2],
                  num_heads=[3, 6, 12, 24],
+                 kernel_size=2,
+                 strides=[2, 2, 2, 2],
+                 dilations=[1, 1, 1, 1],
                  window_size=7,
                  mlp_ratio=4.,
                  qkv_bias=True,
@@ -630,6 +666,9 @@ class DilatedSwinTransformer(nn.Module):
                 depth=depths[i_layer],
                 num_heads=num_heads[i_layer],
                 window_size=window_size,
+                kernel_size=kernel_size,
+                stride=strides[i_layer],
+                dilation=dilations[i_layer],
                 mlp_ratio=mlp_ratio,
                 qkv_bias=qkv_bias,
                 qk_scale=qk_scale,
