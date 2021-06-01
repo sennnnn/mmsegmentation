@@ -1,5 +1,5 @@
 _base_ = [
-    '../_base_/models/pspnet_swin.py', '../_base_/datasets/ade20k.py',
+    '../_base_/models/deeplabv3plus_swin.py', '../_base_/datasets/ade20k.py',
     '../_base_/default_runtime.py', '../_base_/schedules/schedule_160k.py'
 ]
 model = dict(
@@ -14,7 +14,7 @@ model = dict(
         drop_path_rate=0.3,
         patch_norm=True,
         use_checkpoint=False),
-    decode_head=dict(in_channels=1024, channels=256, num_classes=150),
+    decode_head=dict(in_channels=1024, channels=256, c1_in_channels=128, c1_channels=24, num_classes=150),
     auxiliary_head=dict(in_channels=512, channels=128, num_classes=150))
 
 # AdamW optimizer, no weight decay for position embedding & layer norm

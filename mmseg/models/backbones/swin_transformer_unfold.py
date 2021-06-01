@@ -348,11 +348,6 @@ class PatchMerging(nn.Module):
 
         x = x.view(B, H, W, C).permute([0, 3, 1, 2])  # B, C, H, W
 
-        # padding
-        pad_input = (H % 2 == 1) or (W % 2 == 1)
-        if pad_input:
-            x = F.pad(x, (0, 0, 0, W % 2, 0, H % 2))
-
         # Use nn.Unfold to merge patch. About 25% faster than original method,
         # but need to modify pretrained model for compatibility
         x = self.sampler(x)  # B, 4*C, H/2*W/2

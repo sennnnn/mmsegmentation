@@ -18,12 +18,14 @@ model = dict(
     decode_head=[
         dict(
             type='FCNHead',
-            in_channels=512,
-            in_index=2,
-            channels=128,
+            in_channels=[512, 1024],
+            channels=sum([512, 1024]),
+            in_index=(0, 1),
+            input_transform='resize_concat',
+            kernel_size=1,
             num_convs=1,
             concat_input=False,
-            dropout_ratio=0.1,
+            dropout_ratio=-1,
             num_classes=150,
             norm_cfg=norm_cfg,
             align_corners=False,
@@ -31,16 +33,17 @@ model = dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
         dict(
             type='OCRHead',
-            in_channels=1024,
-            in_index=3,
-            channels=256,
+            in_channels=[512, 1024],
+            in_index=(0, 1),
+            input_transform='resize_concat',
+            channels=512,
             ocr_channels=256,
-            dropout_ratio=0.1,
+            dropout_ratio=-1,
             num_classes=150,
             norm_cfg=norm_cfg,
             align_corners=False,
             loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0))
+                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
     ])
 
 # AdamW optimizer, no weight decay for position embedding & layer norm

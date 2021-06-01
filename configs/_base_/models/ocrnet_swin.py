@@ -2,6 +2,7 @@
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
     type='CascadeEncoderDecoder',
+    num_stages=2,
     pretrained=None,
     backbone=dict(
         type='SwinTransformer',
@@ -17,17 +18,19 @@ model = dict(
         drop_path_rate=0.3,
         ape=False,
         patch_norm=True,
-        out_indices=(0, 1, 2, 3),
+        out_indices=(2, 3),
         use_checkpoint=False),
     decode_head=[
         dict(
             type='FCNHead',
-            in_channels=384,
-            in_index=2,
-            channels=96,
+            in_channels=[384, 768],
+            channels=sum([384, 768]),
+            in_index=(0, 1),
+            input_transform='resize_concat',
+            kernel_size=1,
             num_convs=1,
             concat_input=False,
-            dropout_ratio=0.1,
+            dropout_ratio=-1,
             num_classes=19,
             norm_cfg=norm_cfg,
             align_corners=False,
@@ -35,16 +38,17 @@ model = dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
         dict(
             type='OCRHead',
-            in_channels=768,
-            in_index=3,
-            channels=192,
-            ocr_channels=192,
-            dropout_ratio=0.1,
+            in_channels=[384, 768],
+            in_index=(0, 1),
+            input_transform='resize_concat',
+            channels=512,
+            ocr_channels=256,
+            dropout_ratio=-1,
             num_classes=19,
             norm_cfg=norm_cfg,
             align_corners=False,
             loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0))
+                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
     ],
     # model training and testing settings
     train_cfg=dict(),

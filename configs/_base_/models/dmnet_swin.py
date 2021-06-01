@@ -2,7 +2,7 @@
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
     type='EncoderDecoder',
-    pretrained=None,
+    pretrained='open-mmlab://resnet50_v1c',
     backbone=dict(
         type='SwinTransformer',
         embed_dim=96,
@@ -20,11 +20,11 @@ model = dict(
         out_indices=(2, 3),
         use_checkpoint=False),
     decode_head=dict(
-        type='PSPHead',
+        type='DMHead',
         in_channels=768,
         in_index=1,
         channels=192,
-        pool_scales=(1, 2, 3, 6),
+        filter_sizes=(1, 3, 5, 7),
         dropout_ratio=0.1,
         num_classes=19,
         norm_cfg=norm_cfg,
