@@ -4,6 +4,8 @@ _base_ = [
 ]
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
+    pretrained=\
+    'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384_22k.pth', # noqa
     backbone=dict(
         embed_dim=128,
         depths=[2, 2, 18, 2],
@@ -14,7 +16,7 @@ model = dict(
         patch_norm=True,
         use_checkpoint=False),
     neck=dict(
-        type='MLANeck',
+        type='MLANeckMs',
         in_channels=[128, 256, 512, 1024],
         out_channels=256,
         norm_cfg=norm_cfg,
