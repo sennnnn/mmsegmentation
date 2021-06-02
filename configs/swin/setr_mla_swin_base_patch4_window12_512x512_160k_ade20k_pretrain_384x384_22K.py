@@ -24,7 +24,8 @@ model = dict(
     ),
     decode_head=dict(
         in_channels=(256, 256, 256, 256),
-        channels=512, 
+        channels=512,
+        mla_channels=128,
         num_classes=150),
     auxiliary_head=[
         dict(
@@ -36,7 +37,7 @@ model = dict(
             num_convs=0,
             kernel_size=1,
             concat_input=False,
-            num_classes=19,
+            num_classes=150,
             align_corners=False,
             loss_decode=dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
@@ -49,7 +50,7 @@ model = dict(
             num_convs=0,
             kernel_size=1,
             concat_input=False,
-            num_classes=19,
+            num_classes=150,
             align_corners=False,
             loss_decode=dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
@@ -62,7 +63,7 @@ model = dict(
             num_convs=0,
             kernel_size=1,
             concat_input=False,
-            num_classes=19,
+            num_classes=150,
             align_corners=False,
             loss_decode=dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
@@ -75,7 +76,7 @@ model = dict(
             num_convs=0,
             kernel_size=1,
             concat_input=False,
-            num_classes=19,
+            num_classes=150,
             align_corners=False,
             loss_decode=dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
