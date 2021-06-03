@@ -261,7 +261,7 @@ class SwinTransformerBlock(nn.Module):
         """
         B, L, C = x.shape
         H, W = self.H, self.W
-        assert L == H * W, 'input feature has wrong size'
+        assert L == H * W, f'input feature has wrong size, L: {L}, H: {H}, W: {W}'
 
         shortcut = x
         x = self.norm1(x)
