@@ -16,7 +16,8 @@ model = dict(
             dropout_ratio=0,
             norm_cfg=norm_cfg,
             act_cfg=dict(type='ReLU'),
-            num_convs=2,
+            num_convs=1,
+            up_scale=1,
             kernel_size=1,
             align_corners=False,
             loss_decode=dict(
@@ -30,7 +31,8 @@ model = dict(
             dropout_ratio=0,
             norm_cfg=norm_cfg,
             act_cfg=dict(type='ReLU'),
-            num_convs=2,
+            num_convs=1,
+            up_scale=1,
             kernel_size=1,
             align_corners=False,
             loss_decode=dict(
@@ -44,7 +46,8 @@ model = dict(
             dropout_ratio=0,
             norm_cfg=norm_cfg,
             act_cfg=dict(type='ReLU'),
-            num_convs=2,
+            num_convs=1,
+            up_scale=1,
             kernel_size=1,
             align_corners=False,
             loss_decode=dict(
