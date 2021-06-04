@@ -62,21 +62,6 @@ model = dict(
             align_corners=False,
             loss_decode=dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
-        dict(
-            type='SETRUPHead',
-            in_channels=1024,
-            channels=512,
-            in_index=3,
-            num_classes=150,
-            dropout_ratio=0,
-            norm_cfg=norm_cfg,
-            act_cfg=dict(type='ReLU'),
-            num_convs=1,
-            up_scale=4,
-            kernel_size=3,
-            align_corners=False,
-            loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4))
     ],
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(341, 341)),
 )
