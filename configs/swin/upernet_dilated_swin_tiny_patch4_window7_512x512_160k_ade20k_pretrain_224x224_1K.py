@@ -4,7 +4,7 @@ _base_ = [
 ]
 model = dict(
     pretrained=\
-    'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_tiny_patch4_window7_224.pth', # noqa
+    'pretrain/swin_tiny_patch4_window7_224_converted.pth', # noqa
     backbone=dict(
         embed_dim=96,
         depths=[2, 2, 6, 2],

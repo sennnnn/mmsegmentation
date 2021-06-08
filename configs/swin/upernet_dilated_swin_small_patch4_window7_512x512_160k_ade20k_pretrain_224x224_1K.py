@@ -1,10 +1,10 @@
 _base_ = [
-    '../_base_/models/upernet_swin.py', '../_base_/datasets/ade20k.py',
+    '../_base_/models/upernet_dilated_swin.py', '../_base_/datasets/ade20k.py',
     '../_base_/default_runtime.py', '../_base_/schedules/schedule_160k.py'
 ]
 model = dict(
     pretrained=\
-    'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_small_patch4_window7_224.pth', # noqa
+    'pretrain/swin_small_patch4_window7_224_converted.pth', # noqa
     backbone=dict(
         embed_dim=96,
         depths=[2, 2, 18, 2],
