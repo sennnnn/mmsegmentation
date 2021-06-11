@@ -1,5 +1,5 @@
 _base_ = [
-    '../_base_/models/segformer.py', '../_base_/datasets/ade20k_aligned.py',
+    '../_base_/models/segformer.py', '../_base_/datasets/ade20k_640x640_aligned.py',
     '../_base_/default_runtime.py', '../_base_/schedules/schedule_160k.py'
 ]
 
