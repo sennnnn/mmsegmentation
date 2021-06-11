@@ -35,7 +35,7 @@ def main():
     dst_folder = args.dst_folder
     flag = args.only_correct
 
-    raw_ckpt = torch.load(src_path)
+    raw_ckpt = torch.load(src_path, map_location=torch.device('cpu'))
     raw_ckpt = raw_ckpt.get('state_dict', raw_ckpt)
     raw_ckpt = raw_ckpt.get('model', raw_ckpt)
     new_ckpt = OrderedDict()
