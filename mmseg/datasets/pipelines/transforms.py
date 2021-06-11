@@ -8,7 +8,9 @@ from ..builder import PIPELINES
 
 @PIPELINES.register_module()
 class AlignedResize(object):
-    """Resize images & seg. Align
+    """Resize images & seg.
+
+    Align
     """
 
     def __init__(self,
@@ -177,9 +179,9 @@ class AlignedResize(object):
                 results['img'], results['scale'], return_scale=True)
 
             h, w = img.shape[:2]
-
-            assert h % self.size_divisor == 0 and w % self.size_divisor == 0, \
-                "img size not align. h:{} w:{}".format(h, w)
+            sd = self.size_divisor
+            assert h % sd == 0 and w % sd == 0, \
+                   'img size not align. h:{} w:{}'.format(h, w)
         scale_factor = np.array([w_scale, h_scale, w_scale, h_scale],
                                 dtype=np.float32)
         results['img'] = img
@@ -200,9 +202,9 @@ class AlignedResize(object):
                 gt_seg = mmcv.imresize(
                     results[key], results['scale'], interpolation='nearest')
                 h, w = gt_seg.shape[:2]
-
-                assert h % self.size_divisor == 0 and w % self.size_divisor ==\
-                    0, "gt_seg size not align. h:{} w:{}".format(h, w)
+                sd = self.size_divisor
+                assert h % sd == 0 and w % sd == 0, \
+                    'gt_seg size not align. h:{} w:{}'.format(h, w)
             results[key] = gt_seg
 
     def __call__(self, results):

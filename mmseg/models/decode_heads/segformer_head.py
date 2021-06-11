@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from mmcv.cnn import ConvModule
 
 from ..builder import HEADS
@@ -9,9 +8,7 @@ from .decode_head import BaseDecodeHead
 
 
 class MLP(nn.Module):
-    """
-    Linear Embedding
-    """
+    """Linear Embedding."""
 
     def __init__(self, input_dim=2048, embed_dim=768):
         super().__init__()
