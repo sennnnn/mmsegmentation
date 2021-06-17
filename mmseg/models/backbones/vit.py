@@ -197,7 +197,7 @@ class VisionTransformer(BaseModule):
         with_cp (bool): Use checkpoint or not. Using checkpoint will save
             some memory while slowing down the training speed. Default: False.
         pretrain_style (str): Choose to use timm or mmcls pretrain weights.
-            Default: timm.
+            Default: timm. (only 'timm' and 'mmcls' are supported.)
     """
 
     def __init__(self,
