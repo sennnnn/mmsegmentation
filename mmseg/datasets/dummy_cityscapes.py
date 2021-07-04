@@ -29,8 +29,8 @@ class DummyCityscapes(CustomDataset):
                [0, 80, 100], [0, 0, 230], [119, 11, 32]]
 
     def __init__(self, **kwargs):
+        super().__init__(img_dir='dummy_path', **kwargs)
         # The train set and val set length of cityscapes
-        super().__init__(img_dir='', **kwargs)
         if self.test_mode:
             self.size = self.test_size
         else:
@@ -55,6 +55,10 @@ class DummyCityscapes(CustomDataset):
         data = dict(img_info={}, ann_info={})
         data['img'] = self.dummy_images[idx]
         data['gt_semantic_seg'] = self.dummy_masks[idx]
+        data = self.set_metas(data, idx)
+        return self.pipeline(data)
+
+    def set_metas(self, data, idx):
         shape = data['img'].shape
         data['img_shape'] = self.image_shape
         data['ori_shape'] = self.image_shape
@@ -68,7 +72,8 @@ class DummyCityscapes(CustomDataset):
             to_rgb=False)
         data['ori_filename'] = f'{idx}_dummy.jpg'
         data['filename'] = f'{idx}_dummy.jpg'
-        return self.pipeline(data)
+
+        return data
 
     def load_annotations(self, img_dir, img_suffix, ann_dir, seg_map_suffix,
                          split):
