@@ -1,7 +1,8 @@
 import argparse
+import json
 import os
 import os.path as osp
-import json
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -39,4 +40,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
