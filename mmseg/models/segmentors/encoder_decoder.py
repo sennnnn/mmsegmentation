@@ -90,8 +90,7 @@ class EncoderDecoder(BaseSegmentor):
         return losses
 
     def _decode_head_forward_test(self, x, img_metas):
-        """Run forward function and calculate loss for decode head in
-        inference."""
+        """Run forward function for decode head in inference."""
         seg_logits = self.decode_head.forward_test(x, img_metas, self.test_cfg)
         return seg_logits
 
