@@ -55,10 +55,13 @@ class DummyCityscapes(CustomDataset):
         data = dict(img_info={}, ann_info={})
         data['img'] = self.dummy_images[idx]
         data['gt_semantic_seg'] = self.dummy_masks[idx]
+        data['seg_fields'] = ['gt_semantic_seg']
         data = self.set_metas(data, idx)
         return self.pipeline(data)
 
     def set_metas(self, data, idx):
+        data['ori_filename'] = f'{idx}_dummy.jpg'
+        data['filename'] = f'{idx}_dummy.jpg'
         shape = data['img'].shape
         data['img_shape'] = self.image_shape
         data['ori_shape'] = self.image_shape
@@ -70,18 +73,9 @@ class DummyCityscapes(CustomDataset):
             mean=np.zeros(num_channels, dtype=np.float32),
             std=np.ones(num_channels, dtype=np.float32),
             to_rgb=False)
-        data['ori_filename'] = f'{idx}_dummy.jpg'
-        data['filename'] = f'{idx}_dummy.jpg'
 
         return data
 
     def load_annotations(self, img_dir, img_suffix, ann_dir, seg_map_suffix,
                          split):
         return {}
-
-    def get_gt_seg_maps(self, efficient_test):
-        gt_seg_maps = []
-        for i in range(self.test_size):
-            gt_seg_maps.append(self.dummy_masks[i % 100])
-
-        return gt_seg_maps
