@@ -32,7 +32,10 @@ def main():
 
         for line in lines[1:]:
             info = json.loads(line)
+            if 'mIoU' in info:
+                break
             collect.append(info['time'])
+
     avg_iter_time = (sum(collect) / len(collect))
     print(gpu_info)
     print(f'Average iter time: {avg_iter_time}s')
