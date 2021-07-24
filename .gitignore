@@ -110,7 +110,6 @@ data
 # custom
 *.pkl
 *.pkl.json
-*.log.json
 work_dirs/
 
 # Pytorch
