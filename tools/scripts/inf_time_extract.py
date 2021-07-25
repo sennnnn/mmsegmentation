@@ -38,7 +38,7 @@ def main():
 
     avg_iter_time = (sum(collect) / len(collect))
     print(gpu_info)
-    print(f'Average iter time: {avg_iter_time}s')
+    print(f'Average iter time: {avg_iter_time:.4f}s')
 
 
 if __name__ == '__main__':
