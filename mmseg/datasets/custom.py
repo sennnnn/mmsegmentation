@@ -101,7 +101,7 @@ class CustomDataset(Dataset):
         self.CLASSES, self.PALETTE = self.get_classes_and_palette(
             classes, palette)
         self.ann_loader = LoadAnnotations(
-        ) if ann_load_conf is None else LoadAnnotations(*ann_load_conf)
+        ) if ann_load_conf is None else LoadAnnotations(**ann_load_conf)
 
         # join paths if data_root is specified
         if self.data_root is not None:
@@ -245,7 +245,8 @@ class CustomDataset(Dataset):
             results = dict(ann_info=ann_info)
             self.pre_pipeline(results)
             self.ann_loader(results)
-            return results['gt_semantic_seg']
+            yield results['gt_semantic_seg']
+            return
 
         for idx in range(len(self)):
             ann_info = self.get_ann_info(idx)
@@ -277,6 +278,7 @@ class CustomDataset(Dataset):
 
         for pred, index in zip(preds, indices):
             seg_map = self.get_gt_seg_maps(index)
+            seg_map = list(seg_map)[0]
             pre_eval_results.append(
                 intersect_and_union(pred, seg_map, len(self.CLASSES),
                                     self.ignore_index, self.label_map,
@@ -333,8 +335,8 @@ class CustomDataset(Dataset):
         if self.label_map is not None:
             # return subset of palette
             palette = []
-            for old_id, new_id in sorted(
-                    self.label_map.items(), key=lambda x: x[1]):
+            for old_id, new_id in sorted(self.label_map.items(),
+                                         key=lambda x: x[1]):
                 if new_id != -1:
                     palette.append(self.PALETTE[old_id])
             palette = type(self.PALETTE)(palette)
@@ -377,14 +379,13 @@ class CustomDataset(Dataset):
                     reduce(np.union1d, [np.unique(_) for _ in gt_seg_maps]))
             else:
                 num_classes = len(self.CLASSES)
-            ret_metrics = eval_metrics(
-                results,
-                gt_seg_maps,
-                num_classes,
-                self.ignore_index,
-                metric,
-                label_map=self.label_map,
-                reduce_zero_label=self.reduce_zero_label)
+            ret_metrics = eval_metrics(results,
+                                       gt_seg_maps,
+                                       num_classes,
+                                       self.ignore_index,
+                                       metric,
+                                       label_map=self.label_map,
+                                       reduce_zero_label=self.reduce_zero_label)
         # test a list of pre_eval_results
         else:
             ret_metrics = pre_eval_to_metrics(results, metric)
