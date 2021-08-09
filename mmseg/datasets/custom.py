@@ -1,4 +1,5 @@
 import os.path as osp
+from re import S
 import warnings
 from collections import OrderedDict
 from functools import reduce
@@ -231,13 +232,20 @@ class CustomDataset(Dataset):
         """Place holder to format result to dataset specific output."""
         raise NotImplementedError
 
-    def get_gt_seg_maps(self, efficient_test=None):
+    def get_gt_seg_maps(self, index=None, efficient_test=None):
         """Get ground truth segmentation maps for evaluation."""
         if efficient_test is not None:
             warnings.warn(
                 'DeprecationWarning: ``efficient_test`` has been deprecated '
                 'since MMSeg v0.16, the ``get_gt_seg_maps()`` is CPU memory '
                 'friendly by default. ')
+
+        if index is not None:
+            ann_info = self.get_ann_info(index)
+            results = dict(ann_info=ann_info)
+            self.pre_pipeline(results)
+            self.ann_loader(results)
+            return results['gt_semantic_seg']
 
         for idx in range(len(self)):
             ann_info = self.get_ann_info(idx)
@@ -268,9 +276,7 @@ class CustomDataset(Dataset):
         pre_eval_results = []
 
         for pred, index in zip(preds, indices):
-            seg_map = osp.join(self.ann_dir,
-                               self.img_infos[index]['ann']['seg_map'])
-            seg_map = mmcv.imread(seg_map, flag='unchanged', backend='pillow')
+            seg_map = self.get_gt_seg_maps(index)
             pre_eval_results.append(
                 intersect_and_union(pred, seg_map, len(self.CLASSES),
                                     self.ignore_index, self.label_map,
