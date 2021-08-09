@@ -12,7 +12,7 @@ from torch.utils.data import Dataset
 from mmseg.core import eval_metrics, intersect_and_union, pre_eval_to_metrics
 from mmseg.utils import get_root_logger
 from .builder import DATASETS
-from .pipelines import Compose
+from .pipelines import Compose, LoadAnnotations
 
 
 @DATASETS.register_module()
@@ -84,7 +84,8 @@ class CustomDataset(Dataset):
                  ignore_index=255,
                  reduce_zero_label=False,
                  classes=None,
-                 palette=None):
+                 palette=None,
+                 ann_load_conf=None):
         self.pipeline = Compose(pipeline)
         self.img_dir = img_dir
         self.img_suffix = img_suffix
@@ -98,6 +99,8 @@ class CustomDataset(Dataset):
         self.label_map = None
         self.CLASSES, self.PALETTE = self.get_classes_and_palette(
             classes, palette)
+        self.ann_loader = LoadAnnotations(
+        ) if ann_load_conf is None else LoadAnnotations(*ann_load_conf)
 
         # join paths if data_root is specified
         if self.data_root is not None:
@@ -236,11 +239,12 @@ class CustomDataset(Dataset):
                 'since MMSeg v0.16, the ``get_gt_seg_maps()`` is CPU memory '
                 'friendly by default. ')
 
-        for img_info in self.img_infos:
-            seg_map = osp.join(self.ann_dir, img_info['ann']['seg_map'])
-            gt_seg_map = mmcv.imread(
-                seg_map, flag='unchanged', backend='pillow')
-            yield gt_seg_map
+        for idx in range(len(self)):
+            ann_info = self.get_ann_info(idx)
+            results = dict(ann_info=ann_info)
+            self.pre_pipeline(results)
+            self.ann_loader(results)
+            yield results['gt_semantic_seg']
 
     def pre_eval(self, preds, indices):
         """Collect eval result from each iteration.
